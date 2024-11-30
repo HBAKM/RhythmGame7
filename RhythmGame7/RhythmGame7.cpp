@@ -11,7 +11,8 @@
 #include <sstream>
 #include <regex>
 #include <iostream>
-
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib") // Windows 멀티미디어 라이브러리 링크
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -324,6 +325,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 ShowWindow(hButton, SW_HIDE); // 버튼 숨기기
                 isPlaying = true; // 게임 시작
                 gameStartTime = std::chrono::steady_clock::now(); // 게임시간 시간 측정 시작
+                PlaySound(TEXT("audio.wav"), 0, SND_FILENAME | SND_ASYNC); // 배경 음악 재생
                 isHomeScreen = false; // 홈 화면 비활성화
                 LoadNotes("Notes.txt"); // 노트 로드 
                 SetTimer(hWnd, 1, 10, NULL);  // // 10ms마다 WM_TIMER 메시지 발생
@@ -453,7 +455,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 RECT instructionRect = { textX, textY + 200, textX + 700, textY + 250 };
 
                 // 게임 방법 텍스트 그리기
-                DrawText(hdc, L"!노트에 마우스를 가져가세요!", -1, &instructionRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+                DrawText(hdc, L"!노트에 마우스를 가져가세요! (사운드 있음)", -1, &instructionRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
 
                 // 정리
                 SelectObject(hdc, oldFont);
