@@ -3,24 +3,24 @@
 
 #include "framework.h"
 #include "RhythmGame7.h"
-#include <chrono>
-#include <vector>
-#include <string>
-#include <windows.h>
-#include <fstream>
-#include <sstream>
-#include <regex>
-#include <iostream>
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib") // Windows 멀티미디어 라이브러리 링크
+#include <chrono>               // 시간 관련 기능
+#include <vector>               // 동적 배열 컨테이너
+#include <string>               // 문자열 처리 클래스
+#include <windows.h>            // Windows API
+#include <fstream>              // 파일 입출력
+#include <sstream>              // 스트링 스트림(파싱할 떄)
+#include <regex>                // 정규 표현식 처리
+#include <iostream>             // 표준 입출력
+#include <mmsystem.h>           // 멀티미디어 API(음악재생)
+#pragma comment(lib, "winmm.lib") // 멀티미디어 라이브러리 링크
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
-int gametimer;                                
-// 게임시작하는 순간 타이머 
+int gametimer;                                  // 게임시작하는 순간 타이머 밀리초로 저장
+
 // std::chrono: 현재시간 가져오기
 // steady_clock: 경과 시간(Elapsed Time)을 계산
 // time_point: 특정시점
@@ -191,7 +191,7 @@ void drawNotes(HDC hdc, int currentTime, std::vector<Note>& notes, int windowWid
 
             // 원 크기 감소 (매 프레임마다 일정량 감소)
             float timePassed = static_cast<float>(currentTime - note.time);  // 시간 차이 계산
-            float radiusDecay = 0.1f;  // 매 프레임마다 반지름이 0.1만큼 줄어듬
+            float radiusDecay = 0.1f;  // 매 프레임마다 반지름이 0.1만큼 줄어듦
             note.currentRadius = note.startRadius - (timePassed * radiusDecay);
 
             // 최소 반지름 제한 (안쪽 원보다 작아지지 않도록)
@@ -250,7 +250,7 @@ bool checkHit(Note& note, int mouseX, int mouseY, int windowWidth, int windowHei
     int scaledX = static_cast<int>(note.x * scaleX); // 노트의 가로 좌표를 화면 크기에 맞게 변환
     int scaledY = static_cast<int>(note.y * scaleY); // 노트의 세로 좌표를 화면 크기에 맞게 변환
 
-    // 바깥 원 크기 계산 (시간에 따라 크기가 줄어듬)
+    // 바깥 원 크기 계산 (시간에 따라 크기가 줄어듦)
     float timePassed = gametimer - note.time;  // 시간 차이 계산
     float radiusDecay = 0.1f;  // 매 프레임마다 반지름이 줄어드는 비율
     float outerRadius = note.startRadius - (timePassed * radiusDecay);  // 바깥 원 크기
@@ -304,16 +304,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-        // 버튼의 크기 구하기 (너비 200px, 높이 50px)
+        // 버튼의 크기 구하기
         int buttonWidth = 200;
         int buttonHeight = 50;
         // 창의 크기 구하기
         RECT rect;
         GetClientRect(hWnd, &rect); // 클라이언트 영역의 크기 얻기
         // 창의 가운데 좌표 계산
-        int x = (rect.right - rect.left - buttonWidth) / 2; // 수평 가운데
-        int y = (rect.bottom - rect.top - buttonHeight) / 2 + 200; // 수직 가운데보다 아래로 이동
-        // '시작하기' 버튼 만들기
+        int x = (rect.right - rect.left - buttonWidth) / 2; // 가운데
+        int y = (rect.bottom - rect.top - buttonHeight) / 2 + 200; // 가운데보다 아래로 이동
+        // '시작하기' 버튼
         hButton = CreateWindow(L"BUTTON", L"시작하기", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
             x, y, buttonWidth, buttonHeight, hWnd, (HMENU)1, (HINSTANCE)GetWindowLong(hWnd, GWLP_HINSTANCE), NULL);
     }
@@ -355,8 +355,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (allNotesHitOrMiss()) {
                 KillTimer(hWnd, 1);  // 타이머 멈추기
                 // 점수를 포함한 메시지 생성
-                wchar_t scoreMessage[256];
-                swprintf(scoreMessage, 256, L"게임이 종료되었습니다!\n최종 점수: %d/80", score);
+                wchar_t scoreMessage[100];  // 스택에 100개의 wchar_t 크기 메모리 할당
+                swprintf(scoreMessage, 100, L"게임이 종료되었습니다!\n당신의 점수: %d/80", score);
                 MessageBox(hWnd, scoreMessage, L"게임 종료", MB_OK | MB_ICONINFORMATION);
                 PostQuitMessage(0);  // 게임 종료
             }
